@@ -1,0 +1,124 @@
+<html>
+
+	<link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
+	<link rel="stylesheet" href="bower_components/angular-ui/build/angular-ui.min.css">
+
+	<body>
+
+		<div class="container" ng-app="loaderApp" ng-controller="loadControl">
+			<h1>
+				OpenTraffic Data Loader
+				<small>
+					a browser-based implementation
+				</small>
+				<hr>
+			</h1>
+
+			<p>
+				Purpose of this tool is to help understand the process of adding data to the OpenTraffic project.
+			</p>
+
+			<h3>
+				Import data
+				<small ng-show="columns == null" style="color:red">
+					No file uploaded
+				</small>
+				<small ng-show="columns !== null" style="color:green">
+					File loaded
+				</small>
+			</h3>
+
+			<div class="btn-group" id="fileUploadForm">
+				<button class="btn btn-default btn-sm">
+					<input type="file" id="fileUpload" />
+				</button>
+				<button class="btn btn-info btn-sm" ng-click="runLoad()">
+					Load
+				</button>
+			</div>
+
+			<div ng-show="columns !== null">
+				<h3>
+					Select relevant elements
+				</h3>
+
+				<p>
+					Found the following headers: 
+				</p>
+				<div class="row">
+					<div class="col-xs-12">
+						<p ng-repeat="col in columns" class="pull-left">
+							<span class="label label-info" style="margin-right:5px">
+								{{ col }}
+							</span>
+						</p>
+					</div>
+				</div>
+
+				<div class="row">
+					<div ng-repeat="elem in structure" class="col-xs-3 form-inline">
+						<h6>
+							{{ elem.verbose }}
+							<small ng-show="elem.correlate == null" style="color:red">
+								<span class="glyphicon glyphicon-remove"></span>
+							</small>
+							<small ng-show="elem.correlate !== null" style="color:green">
+								<span class="glyphicon glyphicon-ok"></span>
+							</small>
+						</h6>
+						<div class="dropdown">
+						  <button class="btn btn-default btn-xs dropdown-toggle" type="button" data-toggle="dropdown">
+						    <span ng-show="elem.correlate == null">
+						    	Select 
+						    </span>
+						    <span ng-show="elem.correlate !== null">
+						    	{{ elem.correlate }}
+						    </span>
+						    <span class="caret"></span>
+						  </button>
+						  <ul class="dropdown-menu">
+						    <li ng-repeat="col in columns">
+						    	<a href="" ng-click="elem.correlate = col">
+						    		{{ col }}
+						    	</a>
+						    </li>
+						  </ul>
+						</div>
+					</div>
+				</div>
+
+				<div ng-show="allCorrelated()">
+					<h3>
+						Prepare selected data
+					</h3>
+					<p>
+						Extract 
+						<span ng-repeat="elem in structure">
+							<span class="label label-info" style="margin-right:5px">
+								{{ elem.correlate }}
+							</span>
+						</span>
+						from imported data: 
+						<button class="btn btn-default btn-xs" type="button" ng-click="cleanRaw()">
+						  Run
+						</button>
+					</p>
+				</div>
+			</div>
+
+		</div>
+
+	</body>
+
+	<script src="bower_components/jquery/dist/jquery.min.js"></script>
+	<script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+	<script src="bower_components/angular/angular.min.js"></script>
+	<script src="bower_components/angular-ui/build/angular-ui.min.js"></script>
+	<script src="bower_components/jquery-csv/src/jquery.csv.min.js"></script>
+
+	<script src="csv-loader.js"></script>
+
+	<script type="text/javascript">
+	</script>
+
+</html>
