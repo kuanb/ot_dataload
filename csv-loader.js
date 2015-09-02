@@ -71,18 +71,66 @@ app.controller('loadControl', function($scope) {
 		$scope.$apply(function () {
 			$scope.columns = csv[0];	
 		});
-		rawData = csv;
+		rawData = csv.splice(1, csv.length);
 	};
 
+	var guid = function () {
+		return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    	var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+    	return v.toString(16);
+		});
+	}
+
 	$scope.cleanRaw = function () {
-		for (elem in $scope.structure) {
-			var cor = $scope.structure[elem].correlate;
-			$scope.columns.indexOf(cor);
-		};
-		rawData.map(function (rowVals, rowNum) {
-			console.log("index", index);
-			console.log("row", row);
+
+		var toProcess = [];
+		for (struc in $scope.structure) {
+			var cor = $scope.structure[struc].correlate;
+			toProcess.push({
+				index: $scope.columns.indexOf(cor),
+				cor: cor
+			});
+		}
+
+		rawData = rawData.map(function (rowVals, rowNum) {
+			var newRow = {};
+			toProcess.forEach(function (item) {
+				var index = item.index;
+				var cor = item.cor;
+				newRow[cor] = rowVals[index];
+			});
+			return newRow;
+		});
+
+		// {vehicleId: 123, vehicleLocation:[{lat:12.0,lon:123.0,time:1234}...]}
+		var vehId = $scope.structure.unique_vehicle_id.correlate;
+		var time = $scope.structure.utc_timestamp.correlate;
+		var lat = $scope.structure.lat.correlate;
+		var lon = $scope.structure.lon.correlate;
+
+		var vehicles = {};
+		var sorted = {};
+
+		rawData.forEach(function (data) {
+			if (data[vehId] in vehicles) {
+				var uuid = vehicles[data[vehId]];
+				var newPt = {
+					lat: data[lat],
+					lon: data[lon],
+					time: data[time]
+				};
+				sorted[uuid].vehicleLocation.push(newPt)
+			} else {
+				var g = guid();
+				vehicles[data[vehId]] = g;
+				sorted[g] = {
+					vehicleId: data[vehId],
+					vehicleLocation: []
+				};
+			}
 		})
+
+		console.log(sorted);
 	};
 
 
